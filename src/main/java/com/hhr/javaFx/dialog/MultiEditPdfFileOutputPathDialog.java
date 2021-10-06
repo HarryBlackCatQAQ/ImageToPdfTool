@@ -33,7 +33,7 @@ public class MultiEditPdfFileOutputPathDialog extends MainDialog {
         //设置标题
         dialogBuilder.setTitle("批量修改PDF文件输出路径");
 
-        dialogBuilder.getLayout().setPrefWidth(700);
+        dialogBuilder.getLayout().setPrefWidth(710);
 
         VBox vBox = dialogBuilder.getLayoutContentVBox();
         vBox.setSpacing(25);
@@ -60,7 +60,7 @@ public class MultiEditPdfFileOutputPathDialog extends MainDialog {
         pdfFileOutputPathButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                DirectoryChooser dirChooser = new DirectoryChooser();
+                DirectoryChooser dirChooser = SingletonFactory.getWeakInstace(DirectoryChooser.class);
                 File file = dirChooser.showDialog(SingletonFactory.getWeakInstace(MyStage.class).getStage());
                 if(file == null){
                     return;

@@ -38,7 +38,7 @@ public class TaskAddDialog extends MainDialog{
         //设置标题
         dialogBuilder.setTitle("图片转PDF任务添加");
 
-        dialogBuilder.getLayout().setPrefWidth(700);
+        dialogBuilder.getLayout().setPrefWidth(710);
 
         VBox vBox = dialogBuilder.getLayoutContentVBox();
         vBox.setSpacing(25);
@@ -175,7 +175,7 @@ public class TaskAddDialog extends MainDialog{
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                DirectoryChooser dirChooser = new DirectoryChooser();
+                DirectoryChooser dirChooser = SingletonFactory.getWeakInstace(DirectoryChooser.class);
                 File file = dirChooser.showDialog(SingletonFactory.getWeakInstace(MyStage.class).getStage());
                 if(file == null){
                     return;

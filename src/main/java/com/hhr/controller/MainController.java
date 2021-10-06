@@ -142,12 +142,21 @@ public class MainController implements Initializable {
 
     @FXML
     private void multiSelectionButtonClicked(MouseEvent event) {
-        JFileChooser jFileChooser = new JFileChooser();
+        SingletonFactory.getInstace(MyFixedThreadPool.class).execute(new Runnable() {
+            @Override
+            public void run() {
+                multiSelectionButtonClicked();
+            }
+        });
+    }
+    private void multiSelectionButtonClicked(){
+        JFileChooser jFileChooser = SingletonFactory.getWeakInstace(JFileChooser.class);
         jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         jFileChooser.setMultiSelectionEnabled(true);
         jFileChooser.setDialogTitle("选择文件夹");
+//        System.err.println(1);
         jFileChooser.showOpenDialog(null);
-
+//        System.err.println(2);
         for (File dir : jFileChooser.getSelectedFiles()) {
             SingletonFactory.getInstace(MyTableViewData.class).getData().add(
                     new TableViewTask(dir.getPath(),
@@ -157,6 +166,7 @@ public class MainController implements Initializable {
             );
 //            System.out.println(dirs[i].getPath());
         }
+//        System.err.println("3");
         refresh();
     }
 
