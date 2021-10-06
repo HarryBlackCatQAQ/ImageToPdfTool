@@ -11,4 +11,4 @@ JavaFX 开发的图片转PDF文件
 
 可在Windows MacOS Linux 系统运行。 可在IDEA中自行打包。
 
-需要的可以下载尝试学习！[windows版本下载](https://github.com/HarryBlackCatQAQ/ImageToPdfTool/releases/tag/1.1)
+需要的可以下载尝试学习！[windows版本下载](https://github.com/HarryBlackCatQAQ/ImageToPdfTool/releases)
