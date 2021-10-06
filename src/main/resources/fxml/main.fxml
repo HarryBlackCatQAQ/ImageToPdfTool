@@ -5,18 +5,20 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="458.0" prefWidth="706.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hhr.controller.MainController">
+<Pane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="458.0" prefWidth="706.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hhr.controller.MainController">
    <children>
-      <TableView fx:id="imageToPdfTableView" layoutX="14.0" layoutY="72.0" prefHeight="378.0" prefWidth="681.0">
+      <TableView fx:id="imageToPdfTableView" editable="true" layoutX="14.0" layoutY="72.0" prefHeight="378.0" prefWidth="681.0">
         <columns>
           <TableColumn fx:id="imageFolderPathColumn" prefWidth="200.0" sortable="false" text="图片文件夹路径" />
             <TableColumn fx:id="pdfFileOutputColumn" prefWidth="200.0" sortable="false" text="PDF输出路径" />
             <TableColumn fx:id="pdfFileNameColumn" prefWidth="200.0" sortable="false" text="PDF文件名" />
-            <TableColumn fx:id="isFinishedColumn" sortable="false" text="完成情况" />
+            <TableColumn fx:id="isFinishedColumn" text="完成情况" />
         </columns>
       </TableView>
-      <Button fx:id="addTaskButton" layoutX="212.0" layoutY="30.0" mnemonicParsing="false" onMouseClicked="#addTaskButtonClicked" text="添加任务" />
-      <Button fx:id="cleanAllTaskButton" layoutX="304.0" layoutY="30.0" mnemonicParsing="false" onMouseClicked="#cleanAllTaskButtonClicked" text="清楚所有任务" />
-      <Button fx:id="startChangeButton" layoutX="417.0" layoutY="30.0" mnemonicParsing="false" onMouseClicked="#startChangeButtonClicked" text="开始转换" />
+      <Button fx:id="addTaskButton" layoutX="75.0" layoutY="30.0" mnemonicParsing="false" onMouseClicked="#addTaskButtonClicked" text="添加任务" />
+      <Button fx:id="cleanAllTaskButton" layoutX="167.0" layoutY="30.0" mnemonicParsing="false" onMouseClicked="#cleanAllTaskButtonClicked" text="清除所有任务" />
+      <Button fx:id="startChangeButton" layoutX="557.0" layoutY="30.0" mnemonicParsing="false" onMouseClicked="#startChangeButtonClicked" text="开始转换" />
+      <Button fx:id="multiSelectionButton" layoutX="278.0" layoutY="30.0" mnemonicParsing="false" onMouseClicked="#multiSelectionButtonClicked" text="批量选择文件夹" />
+      <Button fx:id="multiEditPdfFileOutputPathButton" layoutX="399.0" layoutY="30.0" mnemonicParsing="false" onMouseClicked="#multiEditPdfFileOutputPathButtonClicked" text="批量修改PDF输出路径" />
    </children>
 </Pane>

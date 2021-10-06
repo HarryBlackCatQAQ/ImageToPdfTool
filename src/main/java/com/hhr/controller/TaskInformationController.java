@@ -1,6 +1,7 @@
 package com.hhr.controller;
 
-import javafx.application.Platform;
+import com.hhr.thread.MyJavaFxThreadPool;
+import com.hhr.util.SingletonFactory;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ScrollPane;
@@ -31,7 +32,7 @@ public class TaskInformationController implements Initializable {
     }
 
     public static void addVBoxInformation(final String information){
-        Platform.runLater(new Runnable() {
+        SingletonFactory.getInstace(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
             @Override
             public void run() {
                 Text informationText = new Text(information);

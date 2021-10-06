@@ -16,6 +16,10 @@ public class TableViewTask implements Serializable {
     private final SimpleStringProperty pdfFileName;
     private final SimpleStringProperty isFinished;
 
+    public static final String IMAGE_FOLDER_PATH = "imageFolderPath";
+    public static final String PDF_FILE_OUTPUT_PATH = "pdfFileOutputPath";
+    public static final String PDF_FILE_NAME = "pdfFileName";
+
     public TableViewTask(String imageFolderPath, String pdfFileOutputPath, String pdfFileName,int isFinished) {
         this.imageFolderPath = new SimpleStringProperty(imageFolderPath);
         this.pdfFileOutputPath = new SimpleStringProperty(pdfFileOutputPath);
@@ -84,5 +88,17 @@ public class TableViewTask implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(imageFolderPath, pdfFileOutputPath, pdfFileName, isFinished);
+    }
+
+    public void setColumnValue(String name,String value){
+        if (IMAGE_FOLDER_PATH.equals(name)) {
+            this.setImageFolderPath(value);
+        }
+        else if(PDF_FILE_OUTPUT_PATH.equals(name)){
+            this.setPdfFileOutputPath(value);
+        }
+        else if(PDF_FILE_NAME.equals(name)){
+            this.setPdfFileName(value);
+        }
     }
 }

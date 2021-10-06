@@ -3,7 +3,8 @@ package com.hhr.service;
 import com.hhr.controller.MainController;
 import com.hhr.controller.TaskInformationController;
 import com.hhr.javaFx.tableview.MyTableViewData;
-import com.hhr.thread.MyThreadPool;
+import com.hhr.thread.MyJavaFxThreadPool;
+import com.hhr.util.SingletonFactory;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Image;
@@ -104,8 +105,7 @@ public class ImageToPdfToolService {
                 // 读取图片流
                 img = ImageIO.read(new File(imagePath));
                 // 根据图片大小设置文档大小
-                doc.setPageSize(new Rectangle(img.getWidth(), img
-                        .getHeight()));
+                doc.setPageSize(new Rectangle(img.getWidth(), img.getHeight()));
                 // 实例化图片
                 image = Image.getInstance(imagePath);
                 // 添加图片到文档
@@ -115,8 +115,8 @@ public class ImageToPdfToolService {
                 dealCounter++;
 
 //                System.err.println(MyTableViewData.getInstance().getData().get(dataIndex));
-                MyTableViewData.getInstance().getData().get(dataIndex).setIsFinished(cal(dealCounter,imagesCounter));
-                MyThreadPool.getInstance().javaFxExecute(new Runnable() {
+                SingletonFactory.getInstace(MyTableViewData.class).getData().get(dataIndex).setIsFinished(cal(dealCounter,imagesCounter));
+                SingletonFactory.getInstace(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
                     @Override
                     public void run() {
                         MainController.refresh();

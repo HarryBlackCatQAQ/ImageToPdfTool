@@ -20,21 +20,10 @@ public class MyStage extends BaseStage implements ImageToPdfToolInfo {
     private static MyStage instance;
 
     /**
-     * 单例模式
+     * 单例模式 使用
      * @return
      */
-    public static MyStage getInstance() {
-        if (instance == null) {
-            synchronized (MyStage.class) {
-                if (instance == null) {
-                    instance = new MyStage();
-                }
-            }
-        }
-        return instance;
-    }
-
-    private MyStage(){}
+    public MyStage(){}
 
     /**
      * Stage设置

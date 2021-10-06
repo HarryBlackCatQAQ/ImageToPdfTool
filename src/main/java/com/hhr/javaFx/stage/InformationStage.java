@@ -17,26 +17,13 @@ import javafx.stage.WindowEvent;
  * @Version 1.0
  */
 public class InformationStage extends BaseStage implements ImageToPdfToolInfo{
-    private static InformationStage instance;
-
     private final Stage stage;
 
     /**
-     * 单例模式
+     * 单例模式 使用
      * @return
      */
-    public static InformationStage getInstance() {
-        if (instance == null) {
-            synchronized (InformationStage.class) {
-                if (instance == null) {
-                    instance = new InformationStage();
-                }
-            }
-        }
-        return instance;
-    }
-
-    private InformationStage(){
+    public InformationStage(){
         stage = new Stage();
         Parent root = StageUtil.loadFxml(ImageToPdfToolInfo.INFORMATION_VIEW);
         Scene scene = new Scene(root);

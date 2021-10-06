@@ -11,24 +11,12 @@ import javafx.collections.ObservableList;
 public class MyTableViewData {
     private final ObservableList<TableViewTask> data;
 
-    private static MyTableViewData instance;
-
     /**
-     * 单例模式
+     * 单例模式 使用
      * @return
      */
-    public static MyTableViewData getInstance() {
-        if (instance == null) {
-            synchronized (MyTableViewData.class) {
-                if (instance == null) {
-                    instance = new MyTableViewData();
-                }
-            }
-        }
-        return instance;
-    }
 
-    private MyTableViewData(){
+    public MyTableViewData(){
         data = FXCollections.observableArrayList();
     }
 

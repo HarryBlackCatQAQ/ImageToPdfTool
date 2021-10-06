@@ -3,7 +3,8 @@ package com.hhr.javaFx.dialog;
 import com.hhr.javaFx.stage.MyStage;
 import com.hhr.javaFx.tableview.MyTableViewData;
 import com.hhr.javaFx.tableview.TableViewTask;
-import com.hhr.thread.MyThreadPool;
+import com.hhr.thread.MyJavaFxThreadPool;
+import com.hhr.util.SingletonFactory;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -13,8 +14,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 
@@ -27,13 +26,13 @@ import java.io.File;
  * @Version 1.0
  */
 public class TaskAddDialog extends MainDialog{
-    private final MyTextField imageFolderPathTextField;
-    private final MyTextField pdfFileOutputPathTextField;
-    private final MyTextField pdfFileNameTextField;
-    private final MyText tipsText;
+    private final DialogBaseModule.MyTextField imageFolderPathTextField;
+    private final DialogBaseModule.MyTextField pdfFileOutputPathTextField;
+    private final DialogBaseModule.MyTextField pdfFileNameTextField;
+    private final DialogBaseModule.MyText tipsText;
 
     public TaskAddDialog(){
-        Window window = MyStage.getInstance().getWindow();
+        Window window = SingletonFactory.getWeakInstace(MyStage.class).getWindow();
         //创建提示窗口
         dialogBuilder = new DialogBuilder(window);
         //设置标题
@@ -46,8 +45,8 @@ public class TaskAddDialog extends MainDialog{
 
         HBox imageFolderPathHBox = new HBox();
         imageFolderPathHBox.setSpacing(5);
-        MyText imageFolderPathText = new MyText("图片文件夹路径:");
-        imageFolderPathTextField = new MyTextField();
+        DialogBaseModule.MyText imageFolderPathText = new DialogBaseModule.MyText("图片文件夹路径:");
+        imageFolderPathTextField = new DialogBaseModule.MyTextField();
         Button imageFolderPathButton = new Button("路径选择");
         setButtonAction(imageFolderPathButton,imageFolderPathTextField);
         imageFolderPathHBox.getChildren().addAll(imageFolderPathText,imageFolderPathTextField,imageFolderPathButton);
@@ -55,8 +54,8 @@ public class TaskAddDialog extends MainDialog{
 
         HBox pdfFileOutputPathHBox = new HBox();
         pdfFileOutputPathHBox.setSpacing(5);
-        MyText pdfFileOutputPathText = new MyText("PDF输出路径:");
-        pdfFileOutputPathTextField = new MyTextField();
+        DialogBaseModule.MyText pdfFileOutputPathText = new DialogBaseModule.MyText("PDF输出路径:");
+        pdfFileOutputPathTextField = new DialogBaseModule.MyTextField();
         Button pdfFileOutputPathButton = new Button("路径选择");
         setButtonAction(pdfFileOutputPathButton,pdfFileOutputPathTextField);
         pdfFileOutputPathHBox.getChildren().addAll(pdfFileOutputPathText,pdfFileOutputPathTextField,pdfFileOutputPathButton);
@@ -64,11 +63,11 @@ public class TaskAddDialog extends MainDialog{
 
         HBox pdfFileNameTextHBox = new HBox();
         pdfFileNameTextHBox.setSpacing(5);
-        MyText pdfFileNameText = new MyText("PDF文件名:");
-        pdfFileNameTextField = new MyTextField();
+        DialogBaseModule.MyText pdfFileNameText = new DialogBaseModule.MyText("PDF文件名:");
+        pdfFileNameTextField = new DialogBaseModule.MyTextField();
         pdfFileNameTextHBox.getChildren().addAll(pdfFileNameText,pdfFileNameTextField);
 
-        tipsText = new MyText("");
+        tipsText = new DialogBaseModule.MyText("");
         tipsText.setFill(Color.RED);
 
         vBox.getChildren().addAll(imageFolderPathHBox,pdfFileOutputPathHBox,pdfFileNameTextHBox,tipsText);
@@ -77,12 +76,7 @@ public class TaskAddDialog extends MainDialog{
         textFieldAddListener(imageFolderPathTextField);
         textFieldAddListener(pdfFileOutputPathTextField);
         textFieldAddListener(pdfFileNameTextField);
-        MyThreadPool.getInstance().javaFxExecute(new Runnable() {
-            @Override
-            public void run() {
-                dialogBuilder.getPositiveBtn().setDisable(true);
-            }
-        });
+
 
         dialogBuilder.setNegativeBtn("取消", new DialogBuilder.OnClickListener() {
             @Override
@@ -94,13 +88,20 @@ public class TaskAddDialog extends MainDialog{
         dialogBuilder.setPositiveBtn("添加", new DialogBuilder.OnClickListener() {
             @Override
             public void onClick() {
-                MyTableViewData.getInstance().getData().add(
+                SingletonFactory.getInstace(MyTableViewData.class).getData().add(
                         new TableViewTask(imageFolderPathTextField.getText(),
                                 pdfFileOutputPathTextField.getText(),
                                 pdfFileNameTextField.getText(),
                                 0)
                 );
                 System.gc();
+            }
+        });
+
+        SingletonFactory.getInstace(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
+            @Override
+            public void run() {
+                dialogBuilder.getPositiveBtn().setDisable(true);
             }
         });
     }
@@ -170,12 +171,12 @@ public class TaskAddDialog extends MainDialog{
     /**
      * 设置 路径选择按钮事件
      */
-    private void setButtonAction(Button button, final MyTextField myTextField){
+    private void setButtonAction(Button button, final DialogBaseModule.MyTextField myTextField){
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 DirectoryChooser dirChooser = new DirectoryChooser();
-                File file = dirChooser.showDialog(MyStage.getInstance().getStage());
+                File file = dirChooser.showDialog(SingletonFactory.getWeakInstace(MyStage.class).getStage());
                 if(file == null){
                     return;
                 }
@@ -185,20 +186,7 @@ public class TaskAddDialog extends MainDialog{
     }
 
 
-    private static class MyText extends Text{
-        public MyText(String text){
-            this.setText(text);
-            this.setWrappingWidth(125.3);
-            this.fontProperty().set(Font.font(15));
-        }
-    }
 
-    private static class MyTextField extends TextField{
-        public MyTextField(){
-            this.setPrefWidth(452);
-            this.setPrefHeight(23);
-        }
-    }
 
     public String getImageFolderPathTextFieldText() {
         return imageFolderPathTextField.getText();
