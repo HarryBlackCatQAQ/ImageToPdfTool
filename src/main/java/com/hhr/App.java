@@ -1,6 +1,6 @@
 package com.hhr;
 
-import com.hhr.javaFx.MyStage;
+import com.hhr.javaFx.stage.MyStage;
 import javafx.application.Application;
 import javafx.stage.Stage;
 

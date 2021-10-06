@@ -1,26 +1,26 @@
 package com.hhr.controller;
 
-import com.hhr.javaFx.MyStage;
+import com.hhr.javaFx.dialog.TaskAddDialog;
+import com.hhr.javaFx.stage.InformationStage;
+import com.hhr.javaFx.tableview.MyTableViewData;
+import com.hhr.javaFx.tableview.TableViewTask;
 import com.hhr.service.ImageToPdfToolService;
+import com.hhr.thread.MyThreadPool;
 import com.lowagie.text.DocumentException;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.DirectoryChooser;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @Author: Harry
@@ -28,101 +28,95 @@ import java.util.concurrent.Executors;
  * @Version 1.0
  */
 public class MainController implements Initializable {
-    private static VBox informationVBox2;
-    private static ScrollPane scrollPane2;
-    public static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(5);
+    private static TableView<TableViewTask> imageToPdfTableView2;
 
     @FXML
-    private VBox informationVBox;
+    private TableView<TableViewTask> imageToPdfTableView;
 
     @FXML
-    private TextField imageFolderPathTextField;
+    private TableColumn<TableViewTask, String> imageFolderPathColumn;
 
     @FXML
-    private TextField pdfFileOutputPathTextField;
+    private TableColumn<TableViewTask, String> pdfFileOutputColumn;
 
     @FXML
-    private TextField pdfFileNameTextField;
+    private TableColumn<TableViewTask, String> pdfFileNameColumn;
 
     @FXML
-    private Button imageFolderPathButton;
+    private TableColumn<TableViewTask, String> isFinishedColumn;
 
     @FXML
-    private Button pdfFileOutputPathButton;
+    private Button addTaskButton;
+
+    @FXML
+    private Button cleanAllTaskButton;
 
     @FXML
     private Button startChangeButton;
 
-    @FXML
-    private ScrollPane scrollPane;
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        informationVBox2 = informationVBox;
-        scrollPane2 = scrollPane;
+        imageFolderPathColumn.setCellValueFactory(new PropertyValueFactory<TableViewTask, String>("imageFolderPath"));
+        pdfFileOutputColumn.setCellValueFactory(new PropertyValueFactory<TableViewTask, String>("pdfFileOutputPath"));
+        pdfFileNameColumn.setCellValueFactory(new PropertyValueFactory<TableViewTask, String>("pdfFileName"));
+        isFinishedColumn.setCellValueFactory(new PropertyValueFactory<TableViewTask, String>("isFinished"));
+        imageToPdfTableView.setItems(MyTableViewData.getInstance().getData());
+
+        imageToPdfTableView2 = imageToPdfTableView;
     }
 
 
     @FXML
-    private void imageFolderPathButtonClicked(MouseEvent event) {
-        DirectoryChooser dirChooser = new DirectoryChooser();
-        File file = dirChooser.showDialog(MyStage.getInstance().getStage());
-        if(file == null){
-            return;
-        }
-        imageFolderPathTextField.setText(file.getPath());
+    private void addTaskButtonClicked(MouseEvent event) {
+//        System.err.println("addTaskButtonClicked");
+        TaskAddDialog taskAddDialog = new TaskAddDialog();
+        taskAddDialog.show();
     }
 
     @FXML
-    private void pdfFileOutputPathButtonClicked(MouseEvent event) {
-        DirectoryChooser dirChooser = new DirectoryChooser();
-        File file = dirChooser.showDialog(MyStage.getInstance().getStage());
-        if(file == null){
-            return;
-        }
-        pdfFileOutputPathTextField.setText(file.getPath());
+    private void cleanAllTaskButtonClicked(MouseEvent event) {
+//        System.err.println("cleanAllTaskButtonClicked");
+        MyTableViewData.getInstance().getData().clear();
+        System.gc();
     }
 
     @FXML
     private void startChangeButtonClicked(MouseEvent event) {
-        final String imageFolderPath = imageFolderPathTextField.getText();
-        final String pdfFileOutputPath = pdfFileOutputPathTextField.getText();
-        final String pdfName = pdfFileNameTextField.getText();
+//        System.err.println("startChangeButtonClicked");
 
-        if(isTextFieldEmpty(imageFolderPath)){
-            showAlter(Alert.AlertType.WARNING,"图片路径为空!");
-        }
-        else if(isTextFieldEmpty(pdfFileOutputPath)){
-            showAlter(Alert.AlertType.WARNING,"PDF输出路径为空!");
-        }
-        else if(isTextFieldEmpty(pdfName)){
-            showAlter(Alert.AlertType.WARNING,"PDF名字为空!");
-        }
-        else if(isHavingBanSymbol(pdfName)){
-            showAlter(Alert.AlertType.WARNING,"PDF名字中有违规字符:" + BAN_SYMBOL);
-        }
-        else{
-//            System.err.println(pdfFileOutputPath  + File.separator + pdfName + ".pdf");
-            informationVBox.getChildren().clear();
-            fixedThreadPool.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        ImageToPdfToolService.toPdf(imageFolderPath,pdfFileOutputPath  + File.separator + pdfName + ".pdf",pdfName);
-                    } catch (IOException | DocumentException e) {
-                        e.printStackTrace();
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                showAlter(Alert.AlertType.ERROR,"转换失败!\n" + e.getMessage());
-                            }
-                        });
+        InformationStage.getInstance().show();
+
+        for(int i = 0;i < MyTableViewData.getInstance().getData().size();i++){
+            TableViewTask tableViewTask = MyTableViewData.getInstance().getData().get(i);
+            final String imageFolderPath = tableViewTask.getImageFolderPath();
+            final String pdfFileOutputPath = tableViewTask.getPdfFileOutputPath();
+            final String pdfName = tableViewTask.getPdfFileName();
+
+            if(!"100%".equals(tableViewTask.getIsFinished())){
+                final int finalI = i;
+                MyThreadPool.getInstance().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            ImageToPdfToolService.toPdf(imageFolderPath,pdfFileOutputPath  + File.separator + pdfName + ".pdf",pdfName, finalI);
+                            System.gc();
+                        } catch (IOException | DocumentException e) {
+                            e.printStackTrace();
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showAlter(Alert.AlertType.ERROR,"转换失败!\n" + e.getMessage());
+                                }
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
+
 
         }
+        System.gc();
     }
 
     /**
@@ -130,42 +124,13 @@ public class MainController implements Initializable {
      */
     private void showAlter(Alert.AlertType alterType, String information){
         Alert warning = new Alert(alterType,information);
-        warning.initOwner(MyStage.getInstance().getStage());
+        warning.initOwner(InformationStage.getInstance().getStage());
         warning.show();
     }
 
-    /**
-     * 判断TextField中是否为空
-     * @param folderPathOrFileName 文件路径或者文件名
-     * @return 返回是否为空
-     */
-    private boolean isTextFieldEmpty(String folderPathOrFileName){
-        return folderPathOrFileName == null || "".equals(folderPathOrFileName);
+
+    public static void refresh(){
+        imageToPdfTableView2.refresh();
     }
 
-    /**
-     * 判断是否有禁止的字符存在文件名中 /\?*:"<>|
-     */
-    private static final String BAN_SYMBOL = "/\\?*:\"<>|";
-    private boolean isHavingBanSymbol(String fileName){
-        for(int i = 0;i < BAN_SYMBOL.length();i++){
-            if(fileName.indexOf(BAN_SYMBOL.charAt(i)) >= 0){
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static void addVBoxInformation(final String information){
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                Text informationText = new Text(information);
-                informationText.setWrappingWidth(666);
-                informationVBox2.getChildren().add(informationText);
-                scrollPane2.setVvalue(1.0);
-            }
-        });
-    }
 }

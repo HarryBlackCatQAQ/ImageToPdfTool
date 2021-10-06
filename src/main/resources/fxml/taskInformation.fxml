@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="458.0" prefWidth="706.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hhr.controller.TaskInformationController">
+   <children>
+      <ScrollPane fx:id="scrollPane" layoutX="11.0" layoutY="13.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="436.0" prefWidth="685.0">
+         <content>
+            <VBox fx:id="informationVBox" prefHeight="9.0" prefWidth="668.0" />
+         </content>
+      </ScrollPane>
+   </children>
+</Pane>

@@ -1,6 +1,9 @@
 package com.hhr.service;
 
 import com.hhr.controller.MainController;
+import com.hhr.controller.TaskInformationController;
+import com.hhr.javaFx.tableview.MyTableViewData;
+import com.hhr.thread.MyThreadPool;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Image;
@@ -31,7 +34,7 @@ public class ImageToPdfToolService {
      *            PDF文件保存地址
      *
      */
-    public static void toPdf(String imageFolderPath, String pdfPath,String pdfName) throws IOException, DocumentException {
+    public static void toPdf(String imageFolderPath, String pdfPath,String pdfName,int dataIndex) throws IOException, DocumentException {
         long time1 = System.currentTimeMillis();
 
         // 图片地址
@@ -74,8 +77,20 @@ public class ImageToPdfToolService {
 
         });
 
-        // 循环获取图片文件夹内的图片
+        //计算数量
         int imagesCounter = 0;
+        for (File file1 : files) {
+            if (file1.getName().endsWith(".png")
+                    || file1.getName().endsWith(".jpg")
+                    || file1.getName().endsWith(".gif")
+                    || file1.getName().endsWith(".jpeg")
+                    || file1.getName().endsWith(".tif")) {
+                imagesCounter++;
+            }
+        }
+
+        // 循环获取图片文件夹内的图片
+        int dealCounter = 0;
         for (File file1 : files) {
             if (file1.getName().endsWith(".png")
                     || file1.getName().endsWith(".jpg")
@@ -85,7 +100,7 @@ public class ImageToPdfToolService {
 //                 System.out.println(file1.getName());
                 imagePath = imageFolderPath + File.separator + file1.getName();
 //                System.out.println(file1.getName());
-                MainController.addVBoxInformation("添加图片" + file1.getName());
+                TaskInformationController.addVBoxInformation(pdfName + ".pdf文件添加图片" + file1.getName());
                 // 读取图片流
                 img = ImageIO.read(new File(imagePath));
                 // 根据图片大小设置文档大小
@@ -97,7 +112,16 @@ public class ImageToPdfToolService {
                 doc.open();
                 doc.add(image);
 
-                imagesCounter++;
+                dealCounter++;
+
+//                System.err.println(MyTableViewData.getInstance().getData().get(dataIndex));
+                MyTableViewData.getInstance().getData().get(dataIndex).setIsFinished(cal(dealCounter,imagesCounter));
+                MyThreadPool.getInstance().javaFxExecute(new Runnable() {
+                    @Override
+                    public void run() {
+                        MainController.refresh();
+                    }
+                });
             }
         }
         // 关闭文档
@@ -105,7 +129,7 @@ public class ImageToPdfToolService {
 
         long time2 = System.currentTimeMillis();
         int time = (int) ((time2 - time1) / 1000);
-        MainController.addVBoxInformation("执行了:" + time + "秒!" + "  共" + imagesCounter + "张图片," + pdfName + ".pdf生成成功!");
+        TaskInformationController.addVBoxInformation("执行了:" + time + "秒!" + "  共" + imagesCounter + "张图片," + pdfName + ".pdf生成成功!");
     }
 
     /**
@@ -132,5 +156,10 @@ public class ImageToPdfToolService {
 
     private static boolean isNumber(char c){
         return c >= '0' && c <= '9';
+    }
+
+    private static int cal(int x,int sum){
+        double ans = (x * 1.0) / (sum * 1.0) * 100;
+        return (int)ans;
     }
 }
