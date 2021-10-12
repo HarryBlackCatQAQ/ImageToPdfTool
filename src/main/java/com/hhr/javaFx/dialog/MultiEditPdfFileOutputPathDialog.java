@@ -4,8 +4,10 @@ import com.hhr.controller.MainController;
 import com.hhr.javaFx.stage.MyStage;
 import com.hhr.javaFx.tableview.MyTableViewData;
 import com.hhr.javaFx.tableview.TableViewTask;
+import com.hhr.jf.annotation.JfAutowired;
+import com.hhr.jf.annotation.JfComponent;
 import com.hhr.thread.MyJavaFxThreadPool;
-import com.hhr.util.SingletonFactory;
+import com.hhr.jf.SingletonFactory;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -24,12 +26,16 @@ import java.io.File;
  * @Date: 2021/10/6 20:46
  * @Version 1.0
  */
+@JfComponent(weakReference = true)
 public class MultiEditPdfFileOutputPathDialog extends MainDialog {
+    private HBox pdfFileOutputPathHBox;
+
+    @JfAutowired
+    private MainController mainController;
 
     public MultiEditPdfFileOutputPathDialog(){
-        Window window = SingletonFactory.getWeakInstace(MyStage.class).getWindow();
         //创建提示窗口
-        dialogBuilder = new DialogBuilder(window);
+        dialogBuilder = new DialogBuilder();
         //设置标题
         dialogBuilder.setTitle("批量修改PDF文件输出路径");
 
@@ -38,7 +44,7 @@ public class MultiEditPdfFileOutputPathDialog extends MainDialog {
         VBox vBox = dialogBuilder.getLayoutContentVBox();
         vBox.setSpacing(25);
 
-        HBox pdfFileOutputPathHBox = new HBox();
+        pdfFileOutputPathHBox = new HBox();
         pdfFileOutputPathHBox.setSpacing(5);
         final DialogBaseModule.MyText pdfFileOutputPathText = new DialogBaseModule.MyText("PDF输出路径:");
 
@@ -60,8 +66,8 @@ public class MultiEditPdfFileOutputPathDialog extends MainDialog {
         pdfFileOutputPathButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                DirectoryChooser dirChooser = SingletonFactory.getWeakInstace(DirectoryChooser.class);
-                File file = dirChooser.showDialog(SingletonFactory.getWeakInstace(MyStage.class).getStage());
+                DirectoryChooser dirChooser = SingletonFactory.getWeakInstance(DirectoryChooser.class);
+                File file = dirChooser.showDialog(SingletonFactory.getWeakInstance(MyStage.class).getStage());
                 if(file == null){
                     return;
                 }
@@ -76,6 +82,7 @@ public class MultiEditPdfFileOutputPathDialog extends MainDialog {
         dialogBuilder.setNegativeBtn("取消", new DialogBuilder.OnClickListener() {
             @Override
             public void onClick() {
+                pdfFileOutputPathTextField.setText("");
                 System.gc();
             }
         });
@@ -83,21 +90,32 @@ public class MultiEditPdfFileOutputPathDialog extends MainDialog {
         dialogBuilder.setPositiveBtn("修改", new DialogBuilder.OnClickListener() {
             @Override
             public void onClick() {
-                ObservableList<TableViewTask> data = SingletonFactory.getInstace(MyTableViewData.class).getData();
+                ObservableList<TableViewTask> data = SingletonFactory.getInstance(MyTableViewData.class).getData();
 
                 for(int i = 0;i < data.size();i++){
                     data.get(i).setPdfFileOutputPath(pdfFileOutputPathTextField.getText());
                 }
 
-                MainController.refresh();
+                mainController.refresh();
+//                MainController.refresh();
+                pdfFileOutputPathTextField.setText("");
             }
         });
 
-        SingletonFactory.getInstace(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
+    }
+
+    @Override
+    public void show() {
+        SingletonFactory.getInstance(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
             @Override
             public void run() {
                 dialogBuilder.getPositiveBtn().setDisable(true);
             }
         });
+
+        Window window = SingletonFactory.getWeakInstance(MyStage.class).getWindow();
+        this.dialogBuilder.setWindow(window);
+
+        super.show();
     }
 }

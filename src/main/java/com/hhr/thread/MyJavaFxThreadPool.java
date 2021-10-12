@@ -17,7 +17,7 @@ public class MyJavaFxThreadPool extends BaseThreadPool{
      * @return
      */
     public MyJavaFxThreadPool(){
-        javaFxThreadPool = newFixedThreadPool(10,new MyThreadFactory("javaFxThreadPool"));
+        javaFxThreadPool = newCachedThreadPool(30,new MyThreadFactory("JavaFxThreadPool"));
     }
 
     public void javaFxExecute(final Runnable runnable){

@@ -1,9 +1,11 @@
 package com.hhr.javaFx.stage;
 
 import com.hhr.javaFx.ImageToPdfToolInfo;
-import com.hhr.util.ResourcesPathUtil;
-import com.hhr.util.StageUtil;
+import com.hhr.jf.JfScan;
+import com.hhr.jf.util.ResourcesPathUtil;
+import com.hhr.jf.util.StageUtil;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -42,11 +44,9 @@ public class MyStage extends BaseStage implements ImageToPdfToolInfo {
      * Scene设置
      */
     private void setScene(Stage stage){
-        Parent root = StageUtil.loadFxml(MAIN_VIEW);
-
+        Parent root = StageUtil.loadFxml(MAIN_VIEW,"com.hhr");
         Scene scene = new Scene(root);
         scene.getStylesheets().add(ResourcesPathUtil.getPathOfUrl("/css/jfoenix-components.css").toExternalForm());
-
         stage.setScene(scene);
     }
 

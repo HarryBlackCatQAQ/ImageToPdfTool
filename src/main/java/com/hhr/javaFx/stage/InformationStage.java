@@ -2,8 +2,11 @@ package com.hhr.javaFx.stage;
 
 import com.hhr.controller.TaskInformationController;
 import com.hhr.javaFx.ImageToPdfToolInfo;
-import com.hhr.util.ResourcesPathUtil;
-import com.hhr.util.StageUtil;
+import com.hhr.jf.SingletonFactory;
+import com.hhr.jf.annotation.JfAutowired;
+import com.hhr.jf.annotation.JfComponent;
+import com.hhr.jf.util.ResourcesPathUtil;
+import com.hhr.jf.util.StageUtil;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -16,8 +19,12 @@ import javafx.stage.WindowEvent;
  * @Date: 2021/10/5 22:49
  * @Version 1.0
  */
+@JfComponent(weakReference = true)
 public class InformationStage extends BaseStage implements ImageToPdfToolInfo{
     private final Stage stage;
+
+    @JfAutowired
+    private TaskInformationController taskInformationController;
 
     /**
      * 单例模式 使用
@@ -52,7 +59,8 @@ public class InformationStage extends BaseStage implements ImageToPdfToolInfo{
 
     private void close(){
         this.stage.close();
-        TaskInformationController.clearVBox();
+//        TaskInformationController.clearVBox();
+        taskInformationController.clearVBox();
         System.gc();
     }
 }

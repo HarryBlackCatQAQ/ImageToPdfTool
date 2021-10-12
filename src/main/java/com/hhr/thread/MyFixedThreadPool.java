@@ -1,6 +1,5 @@
 package com.hhr.thread;
 
-import javafx.application.Platform;
 
 import java.util.concurrent.*;
 
@@ -17,7 +16,7 @@ public class MyFixedThreadPool extends BaseThreadPool{
      * @return
      */
     public MyFixedThreadPool(){
-        fixedThreadPool = newFixedThreadPool(30,new MyThreadFactory("fixedThreadPool"));
+        fixedThreadPool = newCachedThreadPool(30,new MyThreadFactory("FixedThreadPool"));
     }
 
     public void execute(Runnable runnable){

@@ -3,8 +3,10 @@ package com.hhr.service;
 import com.hhr.controller.MainController;
 import com.hhr.controller.TaskInformationController;
 import com.hhr.javaFx.tableview.MyTableViewData;
+import com.hhr.jf.annotation.JfAutowired;
+import com.hhr.jf.annotation.JfService;
 import com.hhr.thread.MyJavaFxThreadPool;
-import com.hhr.util.SingletonFactory;
+import com.hhr.jf.SingletonFactory;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Image;
@@ -26,7 +28,16 @@ import java.util.List;
  * @Date: 2021/10/5 1:38
  * @Version 1.0
  */
+
+@JfService
 public class ImageToPdfToolService {
+
+    @JfAutowired
+    private MainController mainController;
+
+    @JfAutowired
+    private TaskInformationController taskInformationController;
+
     /**
      *
      * @param imageFolderPath
@@ -35,7 +46,7 @@ public class ImageToPdfToolService {
      *            PDF文件保存地址
      *
      */
-    public static void toPdf(String imageFolderPath, String pdfPath,String pdfName,int dataIndex) throws IOException, DocumentException {
+    public void toPdf(String imageFolderPath, String pdfPath,String pdfName,int dataIndex) throws IOException, DocumentException {
         long time1 = System.currentTimeMillis();
 
         // 图片地址
@@ -101,7 +112,9 @@ public class ImageToPdfToolService {
 //                 System.out.println(file1.getName());
                 imagePath = imageFolderPath + File.separator + file1.getName();
 //                System.out.println(file1.getName());
-                TaskInformationController.addVBoxInformation(pdfName + ".pdf文件添加图片" + file1.getName());
+//                TaskInformationController.addVBoxInformation(pdfName + ".pdf文件添加图片" + file1.getName());
+                taskInformationController.addVBoxInformation(pdfName + ".pdf文件添加图片" + file1.getName());
+
                 // 读取图片流
                 img = ImageIO.read(new File(imagePath));
                 // 根据图片大小设置文档大小
@@ -115,11 +128,12 @@ public class ImageToPdfToolService {
                 dealCounter++;
 
 //                System.err.println(MyTableViewData.getInstance().getData().get(dataIndex));
-                SingletonFactory.getInstace(MyTableViewData.class).getData().get(dataIndex).setIsFinished(cal(dealCounter,imagesCounter));
-                SingletonFactory.getInstace(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
+                SingletonFactory.getInstance(MyTableViewData.class).getData().get(dataIndex).setIsFinished(cal(dealCounter,imagesCounter));
+                SingletonFactory.getInstance(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
                     @Override
                     public void run() {
-                        MainController.refresh();
+                        mainController.refresh();
+//                        MainController.refresh();
                     }
                 });
             }
@@ -129,7 +143,8 @@ public class ImageToPdfToolService {
 
         long time2 = System.currentTimeMillis();
         int time = (int) ((time2 - time1) / 1000);
-        TaskInformationController.addVBoxInformation("执行了:" + time + "秒!" + "  共" + imagesCounter + "张图片," + pdfName + ".pdf生成成功!");
+//        TaskInformationController.addVBoxInformation("执行了:" + time + "秒!" + "  共" + imagesCounter + "张图片," + pdfName + ".pdf生成成功!");
+        taskInformationController.addVBoxInformation("执行了:" + time + "秒!" + "  共" + imagesCounter + "张图片," + pdfName + ".pdf生成成功!");
     }
 
     /**
@@ -137,7 +152,7 @@ public class ImageToPdfToolService {
      * @param fileName
      * @return
      */
-    private static String changFileName(String fileName){
+    private String changFileName(String fileName){
         int startIndex = 0;
         for(int i = 0;i < fileName.length();i++){
             char c = fileName.charAt(i);
@@ -154,11 +169,11 @@ public class ImageToPdfToolService {
         return fileName.substring(0,startIndex) + "0" + fileName.substring(startIndex);
     }
 
-    private static boolean isNumber(char c){
+    private boolean isNumber(char c){
         return c >= '0' && c <= '9';
     }
 
-    private static int cal(int x,int sum){
+    private int cal(int x,int sum){
         double ans = (x * 1.0) / (sum * 1.0) * 100;
         return (int)ans;
     }

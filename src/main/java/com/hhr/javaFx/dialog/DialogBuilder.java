@@ -66,6 +66,15 @@ public class DialogBuilder {
         alert = new JFXAlert<>((Stage) (window));
     }
 
+    public DialogBuilder(){
+        initLayout();
+    }
+
+    public void setWindow(Window window){
+        this.window = window;
+        alert = new JFXAlert<>((Stage) (window));
+    }
+
     private void initLayout(){
         layout = new JFXDialogLayout();
         layoutContentHBox = new HBox();

@@ -3,8 +3,9 @@ package com.hhr.javaFx.dialog;
 import com.hhr.javaFx.stage.MyStage;
 import com.hhr.javaFx.tableview.MyTableViewData;
 import com.hhr.javaFx.tableview.TableViewTask;
+import com.hhr.jf.annotation.JfComponent;
 import com.hhr.thread.MyJavaFxThreadPool;
-import com.hhr.util.SingletonFactory;
+import com.hhr.jf.SingletonFactory;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -25,6 +26,7 @@ import java.io.File;
  * @Date: 2021/10/5 19:11
  * @Version 1.0
  */
+@JfComponent(weakReference = true)
 public class TaskAddDialog extends MainDialog{
     private final DialogBaseModule.MyTextField imageFolderPathTextField;
     private final DialogBaseModule.MyTextField pdfFileOutputPathTextField;
@@ -32,9 +34,9 @@ public class TaskAddDialog extends MainDialog{
     private final DialogBaseModule.MyText tipsText;
 
     public TaskAddDialog(){
-        Window window = SingletonFactory.getWeakInstace(MyStage.class).getWindow();
+//        Window window = SingletonFactory.getWeakInstance(MyStage.class).getWindow();
         //创建提示窗口
-        dialogBuilder = new DialogBuilder(window);
+        dialogBuilder = new DialogBuilder();
         //设置标题
         dialogBuilder.setTitle("图片转PDF任务添加");
 
@@ -82,23 +84,25 @@ public class TaskAddDialog extends MainDialog{
             @Override
             public void onClick() {
                 System.gc();
+                clearTextField();
             }
         });
 
         dialogBuilder.setPositiveBtn("添加", new DialogBuilder.OnClickListener() {
             @Override
             public void onClick() {
-                SingletonFactory.getInstace(MyTableViewData.class).getData().add(
+                SingletonFactory.getInstance(MyTableViewData.class).getData().add(
                         new TableViewTask(imageFolderPathTextField.getText(),
                                 pdfFileOutputPathTextField.getText(),
                                 pdfFileNameTextField.getText(),
                                 0)
                 );
                 System.gc();
+                clearTextField();
             }
         });
 
-        SingletonFactory.getInstace(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
+        SingletonFactory.getInstance(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
             @Override
             public void run() {
                 dialogBuilder.getPositiveBtn().setDisable(true);
@@ -175,8 +179,8 @@ public class TaskAddDialog extends MainDialog{
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                DirectoryChooser dirChooser = SingletonFactory.getWeakInstace(DirectoryChooser.class);
-                File file = dirChooser.showDialog(SingletonFactory.getWeakInstace(MyStage.class).getStage());
+                DirectoryChooser dirChooser = SingletonFactory.getWeakInstance(DirectoryChooser.class);
+                File file = dirChooser.showDialog(SingletonFactory.getWeakInstance(MyStage.class).getStage());
                 if(file == null){
                     return;
                 }
@@ -185,8 +189,19 @@ public class TaskAddDialog extends MainDialog{
         });
     }
 
+    private void clearTextField(){
+        this.imageFolderPathTextField.clear();
+        this.pdfFileNameTextField.clear();
+        this.pdfFileOutputPathTextField.clear();
+    }
 
 
+    @Override
+    public void show() {
+        Window window = SingletonFactory.getWeakInstance(MyStage.class).getWindow();
+        this.dialogBuilder.setWindow(window);
+        super.show();
+    }
 
     public String getImageFolderPathTextFieldText() {
         return imageFolderPathTextField.getText();

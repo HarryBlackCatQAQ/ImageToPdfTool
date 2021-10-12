@@ -1,7 +1,9 @@
 package com.hhr.controller;
 
+import com.hhr.jf.annotation.JfController;
 import com.hhr.thread.MyJavaFxThreadPool;
-import com.hhr.util.SingletonFactory;
+import com.hhr.jf.SingletonFactory;
+import com.hhr.view.TaskInformationView;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ScrollPane;
@@ -16,23 +18,20 @@ import java.util.ResourceBundle;
  * @Date: 2021/10/5 22:29
  * @Version 1.0
  */
-public class TaskInformationController implements Initializable {
+
+@JfController
+public class TaskInformationController extends TaskInformationView implements Initializable {
     private static VBox informationVBox2;
     private static ScrollPane scrollPane2;
-    @FXML
-    private ScrollPane scrollPane;
-
-    @FXML
-    private VBox informationVBox;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        informationVBox2 = informationVBox;
-        scrollPane2 = scrollPane;
+        informationVBox2 = this.getInformationVBox();
+        scrollPane2 = this.getScrollPane();
     }
 
-    public static void addVBoxInformation(final String information){
-        SingletonFactory.getInstace(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
+    public  void addVBoxInformation(final String information){
+        SingletonFactory.getInstance(MyJavaFxThreadPool.class).javaFxExecute(new Runnable() {
             @Override
             public void run() {
                 Text informationText = new Text(information);
@@ -43,7 +42,7 @@ public class TaskInformationController implements Initializable {
         });
     }
 
-    public static void clearVBox(){
+    public void clearVBox(){
         informationVBox2.getChildren().clear();
     }
 }
