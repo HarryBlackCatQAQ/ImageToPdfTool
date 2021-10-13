@@ -100,4 +100,16 @@ public class SingletonFactory {
     public static Map<Class, WeakReference<Object>> getWeakReferenceInstance() {
         return weakReferenceInstance;
     }
+
+    /**
+     * 根据是否weak获取单例工厂中的实例
+     */
+    public static Object getInstanceByIsWeak(Class<?> clazz,boolean isWeak){
+        if(isWeak){
+            return SingletonFactory.getWeakInstance(clazz);
+        }
+        else {
+            return SingletonFactory.getInstance(clazz);
+        }
+    }
 }

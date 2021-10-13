@@ -1,4 +1,4 @@
-package com.hhr.jf.thread;
+package com.hhr.jf.thread.pool;
 
 import org.jetbrains.annotations.NotNull;
 

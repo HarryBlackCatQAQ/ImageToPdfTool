@@ -4,7 +4,9 @@ import com.hhr.jf.annotation.JfAutowired;
 import com.hhr.jf.annotation.JfComponent;
 import com.hhr.jf.annotation.JfController;
 import com.hhr.jf.annotation.JfService;
-import com.hhr.jf.thread.JfThreadPool;
+import com.hhr.jf.thread.JfBeanInjectThread;
+import com.hhr.jf.thread.pool.JfThreadPool;
+import com.hhr.jf.util.LogUtil;
 import javafx.fxml.FXMLLoader;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,69 +35,12 @@ public class JfInstance {
         if(jfController != null){
             //注入 JfController
             SingletonFactory.putInstance(fxmlLoader.getController());
-            log.info(fxmlLoader.<Integer>getController() + " 注入");
+            log.info("注入 " + LogUtil.getClassSimpleName(fxmlLoader.getController()));
             //注入 JfController 中的 JfAutowired
             parseJfAutowiredAnnotation(fxmlLoader);
 
 //            parseJfControllerAnnotationInSomeJfComponentAnnotation(fxmlLoader);
             parseJfControllerAnnotationInSomeJfComponentAnnotationAndJfServiceAnnotation(fxmlLoader);
-        }
-    }
-
-    private static void parseJfControllerAnnotationInSomeJfComponentAnnotationAndJfServiceAnnotation(final FXMLLoader fxmlLoader){
-        List<String> classes = JfScan.getClassesList(JfInstance.packagePath);
-        for(String classString : classes){
-            try {
-                final Class<?> clazz = Class.forName(classString);
-
-                JfComponent jfComponent = clazz.getAnnotation(JfComponent.class);
-                JfService jfService = clazz.getAnnotation(JfService.class);
-
-                if(jfComponent != null || jfService != null){
-                    Field[] fields = getClassFields(clazz);
-                    Class<?> fxmlControllerClass = fxmlLoader.getController().getClass();
-                    for(final Field field : fields){
-                        JfAutowired jfAutowired = field.getAnnotation(JfAutowired.class);
-                        if(jfAutowired != null && field.getType().equals(fxmlControllerClass)){
-                            field.setAccessible(true);
-
-                            final boolean isWeak;
-                            if(jfService != null){
-                                isWeak = false;
-                            }
-                            else{
-                                isWeak = jfComponent.weakReference();
-                            }
-
-                            JfThreadPool.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Object instance;
-                                    if(isWeak){
-                                       while (!SingletonFactory.getWeakReferenceInstance().containsKey(clazz)){}
-                                       instance = getInstanceByIsWeak(clazz,isWeak);
-                                    }
-                                    else{
-                                        while (!SingletonFactory.getInstance().containsKey(clazz)){}
-                                        instance = getInstanceByIsWeak(clazz,isWeak);
-                                    }
-
-                                    try {
-                                        field.set(instance,fxmlLoader.getController());
-                                        log.info(instance + " 多线程注入 " + fxmlLoader.getController() + " " + Thread.currentThread().getName());
-                                    } catch (IllegalAccessException e) {
-                                        log.error("JfAutowired 注入失败:" + fxmlLoader.getController().getClass().getName() + "下的" + field.getType()
-                                                + ",注入类型为" + JfController.class + " error in:parseJfControllerAnnotationInSomeJfComponentAnnotationAndJfServiceAnnotation\n"
-                                                + "  error:" + e.getMessage());
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-//                System.err.println(classString + "不是类!");
-            }
         }
     }
 
@@ -120,7 +65,7 @@ public class JfInstance {
                         Object instance;
                         if(annotation.annotationType().equals(JfComponent.class)){
                             JfComponent jfComponent = (JfComponent) annotation;
-                            instance = getInstanceByIsWeak(field.getType(),jfComponent.weakReference());
+                            instance = SingletonFactory.getInstanceByIsWeak(field.getType(),jfComponent.weakReference());
                         }
                         else{
                             instance = SingletonFactory.getInstance(field.getType());
@@ -130,7 +75,7 @@ public class JfInstance {
                         try {
                             //JfAutowired 注入
                             field.set(fxmlLoader.getController(),instance);
-                            log.info(fxmlLoader.getController() + " 注入 " + instance);
+                            log.info("注入 " + LogUtil.getClassSimpleName(fxmlLoader.getController()) + " 中的 " + LogUtil.getClassSimpleName(instance));
                         } catch (IllegalAccessException e) {
                             log.error("JfAutowired 注入失败:" + fxmlLoader.getController().getClass().getName() + "下的" + field.getType()
                                     + ",注入类型为" + annotation.annotationType() + " error in:parseJfAutowiredAnnotation\n"
@@ -158,12 +103,51 @@ public class JfInstance {
             if(jfAutowired != null && field.getType().equals(fxmlControllerClass)){
                 try {
                     field.set(instance,fxmlLoader.getController());
-                    log.info(instance + " 注入 " + fxmlLoader.getController());
+                    log.info("注入 " + LogUtil.getClassSimpleName(instance) + " 中的 " + LogUtil.getClassSimpleName(fxmlLoader.getController()));
                 } catch (IllegalAccessException e) {
                     log.error("JfAutowired 注入失败:" + fxmlLoader.getController().getClass().getName() + "下的" + field.getType()
                             + ",注入类型为" + JfController.class + " error in:parseJfAutowiredAnnotationInJfServiceAnnotationAndJfComponentAnnotation\n"
                             + "  error:" + e.getMessage());
                 }
+            }
+        }
+    }
+
+    /**
+     * 对某些 JfComponent 和 JfService 中已经注入了的 JfController 属性 进行注入
+     */
+    private static void parseJfControllerAnnotationInSomeJfComponentAnnotationAndJfServiceAnnotation(FXMLLoader fxmlLoader){
+        List<String> classes = JfScan.getClassesList(JfInstance.packagePath);
+        for(String classString : classes){
+            try {
+                Class<?> clazz = Class.forName(classString);
+
+                JfComponent jfComponent = clazz.getAnnotation(JfComponent.class);
+                JfService jfService = clazz.getAnnotation(JfService.class);
+
+                if(jfComponent != null || jfService != null){
+                    Field[] fields = getClassFields(clazz);
+                    Class<?> fxmlControllerClass = fxmlLoader.getController().getClass();
+                    for(Field field : fields){
+                        JfAutowired jfAutowired = field.getAnnotation(JfAutowired.class);
+                        if(jfAutowired != null && field.getType().equals(fxmlControllerClass)){
+                            field.setAccessible(true);
+
+                            boolean isWeak;
+                            if(jfService != null){
+                                isWeak = false;
+                            }
+                            else{
+                                isWeak = jfComponent.weakReference();
+                            }
+
+                            //多线程注入
+                            JfThreadPool.execute(new JfBeanInjectThread(isWeak,clazz,fxmlLoader,field));
+                        }
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+//                System.err.println(classString + "不是类!");
             }
         }
     }
@@ -187,16 +171,5 @@ public class JfInstance {
         return clazz.getDeclaredFields();
     }
 
-    /**
-     * 根据是否weak获取单例工厂中的实例
-     */
-    private static Object getInstanceByIsWeak(Class<?> clazz,boolean isWeak){
-        if(isWeak){
-            return SingletonFactory.getWeakInstance(clazz);
-        }
-        else {
-            return SingletonFactory.getInstance(clazz);
-        }
-    }
 
 }

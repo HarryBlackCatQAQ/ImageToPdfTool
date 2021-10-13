@@ -25,9 +25,9 @@ public class StageUtil {
             FXMLLoader fxmlLoader = new FXMLLoader(fxmlPath);
             root = fxmlLoader.load();
 
-            log.info(fxmlLoader.<Integer>getController() + " start-------------------");
+            log.info(LogUtil.getClassSimpleName(fxmlLoader.getController()) + " 注入开始");
             JfInstance.parseJfControllerAnnotation(fxmlLoader,packageName);
-            log.info(fxmlLoader.<Integer>getController() + " end-------------------");
+            log.info(LogUtil.getClassSimpleName(fxmlLoader.getController()) + " 注入结束");
 
         } catch (IOException e) {
             e.printStackTrace();

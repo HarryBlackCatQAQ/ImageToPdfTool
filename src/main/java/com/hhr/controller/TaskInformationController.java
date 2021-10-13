@@ -4,7 +4,6 @@ import com.hhr.jf.annotation.JfController;
 import com.hhr.thread.MyJavaFxThreadPool;
 import com.hhr.jf.SingletonFactory;
 import com.hhr.view.TaskInformationView;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
