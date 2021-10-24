@@ -31,17 +31,17 @@ public class JfInstance {
            JfInstance.packagePath = packagePath;
        }
 
-        JfController jfController = fxmlLoader.getController().getClass().getAnnotation(JfController.class);
-        if(jfController != null){
-            //注入 JfController
-            SingletonFactory.putInstance(fxmlLoader.getController());
-            log.info("注入 " + LogUtil.getClassSimpleName(fxmlLoader.getController()));
-            //注入 JfController 中的 JfAutowired
-            parseJfAutowiredAnnotation(fxmlLoader);
+       JfController jfController = fxmlLoader.getController().getClass().getAnnotation(JfController.class);
+       if(jfController != null){
+           //注入 JfController
+           SingletonFactory.putInstance(fxmlLoader.getController());
+           log.info("注入 " + LogUtil.getClassSimpleName(fxmlLoader.getController()));
+           //注入 JfController 中的 JfAutowired
+           parseJfAutowiredAnnotation(fxmlLoader);
 
-//            parseJfControllerAnnotationInSomeJfComponentAnnotation(fxmlLoader);
-            parseJfControllerAnnotationInSomeJfComponentAnnotationAndJfServiceAnnotation(fxmlLoader);
-        }
+           //对某些 JfComponent 和 JfService 中已经注入了的 JfController 属性 进行注入
+           parseJfControllerAnnotationInSomeJfComponentAnnotationAndJfServiceAnnotation(fxmlLoader);
+       }
     }
 
     /**

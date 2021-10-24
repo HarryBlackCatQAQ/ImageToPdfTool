@@ -1,11 +1,9 @@
 package com.hhr.javaFx.stage;
 
 import com.hhr.javaFx.ImageToPdfToolInfo;
-import com.hhr.jf.JfScan;
 import com.hhr.jf.util.ResourcesPathUtil;
 import com.hhr.jf.util.StageUtil;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;

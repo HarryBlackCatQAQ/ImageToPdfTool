@@ -15,10 +15,10 @@ import java.lang.reflect.Field;
  */
 @Slf4j
 public class JfBeanInjectThread implements Runnable{
-    private boolean isWeak;
-    private Class<?> clazz;
-    private FXMLLoader fxmlLoader;
-    private Field field;
+    private final boolean isWeak;
+    private final Class<?> clazz;
+    private final FXMLLoader fxmlLoader;
+    private final Field field;
 
     public JfBeanInjectThread(boolean isWeak, Class<?> clazz, FXMLLoader fxmlLoader, Field field) {
         this.isWeak = isWeak;
@@ -32,12 +32,11 @@ public class JfBeanInjectThread implements Runnable{
         Object instance;
         if(isWeak){
             while (!SingletonFactory.getWeakReferenceInstance().containsKey(clazz)){}
-            instance = SingletonFactory.getInstanceByIsWeak(clazz,isWeak);
         }
         else{
             while (!SingletonFactory.getInstance().containsKey(clazz)){}
-            instance = SingletonFactory.getInstanceByIsWeak(clazz,isWeak);
         }
+        instance = SingletonFactory.getInstanceByIsWeak(clazz,isWeak);
 
         try {
             field.set(instance,fxmlLoader.getController());

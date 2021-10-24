@@ -67,36 +67,14 @@ public class ImageToPdfToolService {
         File[] files = file.listFiles();
 
 
-        List fileList = Arrays.asList(files);
+        List<File> fileList = Arrays.asList(files);
 
-        Collections.sort(fileList, new Comparator() {
-            @Override
-            public int compare(Object _o1, Object _o2) {
-                File o1 = (File)_o1;
-                File o2 = (File)_o2;
-
-                if (o1.isDirectory() && o2.isFile()) {
-                    return -1;
-                }
-
-                if (o1.isFile() && o2.isDirectory()) {
-                    return 1;
-                }
-
-//                System.err.println(changFileName(o1.getName()) +  " " + changFileName(o2.getName()));
-                return changFileName(o1.getName()).compareTo(changFileName(o2.getName()));
-            }
-
-        });
+        sortFileList(fileList);
 
         //计算数量
         int imagesCounter = 0;
         for (File file1 : files) {
-            if (file1.getName().endsWith(".png")
-                    || file1.getName().endsWith(".jpg")
-                    || file1.getName().endsWith(".gif")
-                    || file1.getName().endsWith(".jpeg")
-                    || file1.getName().endsWith(".tif")) {
+            if (isPicture(file1.getName())) {
                 imagesCounter++;
             }
         }
@@ -104,11 +82,7 @@ public class ImageToPdfToolService {
         // 循环获取图片文件夹内的图片
         int dealCounter = 0;
         for (File file1 : files) {
-            if (file1.getName().endsWith(".png")
-                    || file1.getName().endsWith(".jpg")
-                    || file1.getName().endsWith(".gif")
-                    || file1.getName().endsWith(".jpeg")
-                    || file1.getName().endsWith(".tif")) {
+            if (isPicture(file1.getName())) {
 //                 System.out.println(file1.getName());
                 imagePath = imageFolderPath + File.separator + file1.getName();
 //                System.out.println(file1.getName());
@@ -148,6 +122,58 @@ public class ImageToPdfToolService {
     }
 
     /**
+     * 对图片的名字进行排序
+     */
+    private void sortFileList(List<File> fileList){
+        boolean isNameAllNumber = isNameAllNumber(fileList);
+
+        Collections.sort(fileList, new Comparator() {
+            @Override
+            public int compare(Object _o1, Object _o2) {
+                File o1 = (File)_o1;
+                File o2 = (File)_o2;
+
+                if (o1.isDirectory() && o2.isFile()) {
+                    return -1;
+                }
+
+                if (o1.isFile() && o2.isDirectory()) {
+                    return 1;
+                }
+
+//                System.err.println(changFileName(o1.getName()) +  " " + changFileName(o2.getName()));
+                if(isNameAllNumber){
+                    return sortIsAllNumberCal(o1,o2);
+                }
+                else{
+                    return changFileName(o1.getName()).compareTo(changFileName(o2.getName()));
+                }
+            }
+
+        });
+    }
+
+    /**
+     * 判读名字是否为全数字 是就改为int类型
+     */
+    private boolean isNameAllNumber(List<File> fileList){
+        for(File file : fileList){
+            if(isPicture(file.getName())){
+                String fileName = getPictureName(file.getName());
+
+                for(int i = 0;i < fileName.length();i++){
+                    char c = fileName.charAt(i);
+                    if(!isNumber(c)){
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * 对有数字标号的文件进行前置0的添加
      * @param fileName
      * @return
@@ -176,5 +202,37 @@ public class ImageToPdfToolService {
     private int cal(int x,int sum){
         double ans = (x * 1.0) / (sum * 1.0) * 100;
         return (int)ans;
+    }
+
+    /**
+     * 判断该图片是否是图片 以后缀为判断方法
+     */
+    private boolean isPicture(String fileName){
+        return fileName.endsWith(".png")
+                || fileName.endsWith(".jpg")
+                || fileName.endsWith(".gif")
+                || fileName.endsWith(".jpeg")
+                || fileName.endsWith(".tif");
+    }
+
+    /**
+     * 返回没有后缀的图片名字
+     */
+    private String getPictureName(String fileName){
+        return fileName.substring(0,fileName.indexOf('.'));
+    }
+
+    /**
+     * 对全部是数字的文件的排序条件
+     */
+    private int sortIsAllNumberCal(File o1,File o2){
+        int ans;
+        try{
+            ans = Integer.parseInt(getPictureName(o1.getName())) - Integer.parseInt(getPictureName(o2.getName()));
+        }catch (Exception e){
+            ans = 0;
+        }
+
+        return ans;
     }
 }
