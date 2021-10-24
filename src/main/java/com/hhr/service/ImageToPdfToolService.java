@@ -18,10 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @Author: Harry
@@ -125,8 +122,6 @@ public class ImageToPdfToolService {
      * 对图片的名字进行排序
      */
     private void sortFileList(List<File> fileList){
-        boolean isNameAllNumber = isNameAllNumber(fileList);
-
         Collections.sort(fileList, new Comparator() {
             @Override
             public int compare(Object _o1, Object _o2) {
@@ -141,36 +136,10 @@ public class ImageToPdfToolService {
                     return 1;
                 }
 
-//                System.err.println(changFileName(o1.getName()) +  " " + changFileName(o2.getName()));
-                if(isNameAllNumber){
-                    return sortIsAllNumberCal(o1,o2);
-                }
-                else{
-                    return changFileName(o1.getName()).compareTo(changFileName(o2.getName()));
-                }
+                return changFileName(o1.getName()).compareTo(changFileName(o2.getName()));
             }
 
         });
-    }
-
-    /**
-     * 判读名字是否为全数字 是就改为int类型
-     */
-    private boolean isNameAllNumber(List<File> fileList){
-        for(File file : fileList){
-            if(isPicture(file.getName())){
-                String fileName = getPictureName(file.getName());
-
-                for(int i = 0;i < fileName.length();i++){
-                    char c = fileName.charAt(i);
-                    if(!isNumber(c)){
-                        return false;
-                    }
-                }
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -179,20 +148,50 @@ public class ImageToPdfToolService {
      * @return
      */
     private String changFileName(String fileName){
-        int startIndex = 0;
-        for(int i = 0;i < fileName.length();i++){
-            char c = fileName.charAt(i);
-            if(isNumber(c)){
-                startIndex = i;
-                break;
-            }
-        }
-
-        if(isNumber(fileName.charAt(startIndex + 1))){
+        if(!fileName.contains(".")){
             return fileName;
         }
 
-        return fileName.substring(0,startIndex) + "0" + fileName.substring(startIndex);
+        fileName = fileName.substring(0,fileName.indexOf("."));
+
+        StringBuilder name = new StringBuilder("");
+
+        List<List<Character>> lists = new ArrayList<>();
+        lists.add(new ArrayList<>());
+        int preIndex = -1;
+        for(int i = 0;i < fileName.length();i++){
+            char c = fileName.charAt(i);
+
+            if(isNumber(c)){
+                int index = lists.size() - 1;
+                if(preIndex == -1){
+                    lists.get(index).add(c);
+                }
+                else if(i - preIndex == 1){
+                    lists.get(index).add(c);
+                }
+                else{
+                    lists.add(new ArrayList<>());
+                    lists.get(index + 1).add(c);
+                }
+
+                preIndex = i;
+            }
+        }
+
+        for(List<Character> list : lists){
+            int size = 20 - list.size();
+
+            for(int i = 0;i < size;i++){
+                name.append(0);
+            }
+
+            for(char c : list){
+                name.append(c);
+            }
+        }
+
+        return name.toString();
     }
 
     private boolean isNumber(char c){
@@ -222,17 +221,4 @@ public class ImageToPdfToolService {
         return fileName.substring(0,fileName.indexOf('.'));
     }
 
-    /**
-     * 对全部是数字的文件的排序条件
-     */
-    private int sortIsAllNumberCal(File o1,File o2){
-        int ans;
-        try{
-            ans = Integer.parseInt(getPictureName(o1.getName())) - Integer.parseInt(getPictureName(o2.getName()));
-        }catch (Exception e){
-            ans = 0;
-        }
-
-        return ans;
-    }
 }
